@@ -2,7 +2,7 @@ import pandas as pd
 from mesa import Model
 from mesa.time import BaseScheduler
 from mesa.datacollection import DataCollector
-from agent import CommuterAgent  
+from Model.agent import CommuterAgent  
 
 def calc_avg_travel_time(model):
     total_time = 0
