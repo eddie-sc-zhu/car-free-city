@@ -83,7 +83,12 @@ class BusModel(Model):
 
         self.schedule.step()
 
-        self.ridership = sum(1 for agent in self.schedule.agents if agent.rides)
+
+        total_ridership = 0
+        for agent in self.schedule.agents:
+            if agent.rides:
+                total_ridership += 1
+        self.ridership = total_ridership
 
         self.revenue += self.ridership * self.fare
         self.services += self.revenue * self.service_coeff
