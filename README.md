@@ -8,12 +8,10 @@ Complex Systems ABM for Bus Ridership
 4) run app.py
 
 # Model Features
-- [x] Loop 1: bus ridership (1)-> revenue (2)-> increased services (3)-> convenience (4)-> bus ridership
-            
-
-            
-            
+- [x] Loop 1: bus ridership (1)-> revenue (2)-> increased services (3)-> convenience (4)-> bus ridership      
 - [x] Loop 2: convenience (5)-> awareness (6)-> employee transit passes (7)-> bus ridership
+- [] Loop 3: employer transit passes (8)-> decreased revs (9)-> employee interest (10)-> employer passses
+
 - [x] Negative 1: bus ridership -> increased time for travel -> convenience 
 - [x] Negative 2: inneffectiveness -> bus ridership & awareness & employee interest
 
