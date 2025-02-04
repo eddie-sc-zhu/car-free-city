@@ -4,8 +4,9 @@ Complex Systems ABM for Bus Ridership
 # How To Run Source Code
 1) Clone Repository: git clone repository (HTML, SSH)
 2) Download Python 3.9.x or older (avoid 3.10.x and higher)
-3) Install Prerquirements: pip install mesa, matplotlib, statsmodels, numpy
-4) run app.py
+3) Find folder and cd into the directory
+4) Type in the command pip install -r requirements.txt
+5) run app.py to simulate model
 
 # Model Features
 - [x] Loop 1: bus ridership (1)-> revenue (2)-> increased services (3)-> convenience (4)-> bus ridership      
