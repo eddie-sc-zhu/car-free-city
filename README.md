@@ -7,6 +7,13 @@ Complex Systems ABM for Bus Ridership
 3) Install Prerquirements: pip install mesa, matplotlib, statsmodels, 
 4) run app.py
 
-# Updates
-- [x] 
-- [x]
+# Model Features
+- [x] Loop 1: bus ridership (1)-> revenue (2)-> increased services (3)-> convenience (4)-> bus ridership
+            
+
+            
+            
+- [x] Loop 2: convenience (5)-> awareness (6)-> employee transit passes (7)-> bus ridership
+- [x] Negative 1: bus ridership -> increased time for travel -> convenience 
+- [x] Negative 2: inneffectiveness -> bus ridership & awareness & employee interest
+
