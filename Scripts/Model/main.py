@@ -13,10 +13,11 @@ def calc_avg_travel_time(model):
     
 class PublicTransitModel(Model):
     def __init__(self,
-                 data_path,
+                 data_path="datasets/daily_ridership.csv",
                  initial_revenue=0,
                  initial_services=1,
                  initial_convenience=1,
+                 intitial_employer=0,
                  fare=4.6,
                  service_coeff=0.1,
                  convenience_effect=0.2,
@@ -26,18 +27,7 @@ class PublicTransitModel(Model):
                  ineffectiveness_base=0.2,       
                  ineffectiveness_sensitivity=1.0 
                  ):
-        """
-        Args:
-            data_path (file path): path to ridership csv data
-            initial_revenue (float): starting revenue for Public Transit
-            initial_services (float): starting amount of services for Public Transit
-            initial_convenience (float): starting convenience for Public Transit
-            fare (float): bus Fare (cost)
-            service_coeff (float): multiplier for service
-            convenience_effect (float): multiplier for convenience
-            travel_time_factor (float): multiplier for travel time
-        """
-
+        
         # Read Data
         self.ridership_data = pd.read_csv(data_path)
 
@@ -52,6 +42,9 @@ class PublicTransitModel(Model):
         self.fare = fare
         self.revenue = initial_revenue
         self.ridership = 0 
+
+        #### Employer Variables ####
+        self.employer_subsidy = intitial_employer
 
         #### Negative Factors ####
         self.travel_time_factor = travel_time_factor
@@ -111,8 +104,8 @@ class PublicTransitModel(Model):
             awareness = self.convenience * self.awareness_coeff * (1 - ineffectiveness_penalty)
 
             # awareness -> employer     
-            employer_effect = awareness * self.employer_coeff             
-
+            employer_effect = float(self.employer_subsidy)/base_dynamic + (awareness * (self.employer_coeff/10))           
+            print(employer_effect)
             # Calculate Ridership
             dynamic_ridership = base_dynamic * (1 + employer_effect) * (1 - ineffectiveness_penalty)  
             self.ridership = dynamic_ridership
