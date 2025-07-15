@@ -1,0 +1,3 @@
+-r requirements.txt
+pytest>=8
+line_profiler>=4    # optional: per-line stats in scripts/profile_hotpaths.py
