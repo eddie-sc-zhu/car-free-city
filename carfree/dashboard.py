@@ -281,6 +281,80 @@ calibrated to MDOT MTA 2019 monthly ridership).</p>
     Path(out_html).write_text(html, encoding="utf-8")
 
 
+def make_impact_chart(results: Dict[str, SimulationResult],
+                      out_png: str = "outputs/impact.png") -> str:
+    """Net-impact summary: final-year % change vs status quo on four KPIs,
+    each oriented so that a bar right of zero is an improvement."""
+    def final_year(res):
+        d = res.daily.iloc[-365:]
+        m = res.monthly.iloc[-12:]
+        return {
+            "boardings": d["boardings"].sum(),
+            "revenue": m["total_revenue"].sum(),
+            "convenience": d["convenience"].mean(),
+            "car_trips": d["car_users"].sum(),
+        }
+
+    base = final_year(results["status_quo"])
+    scenarios = [s for s in ("car_free", "car_free_passes", "passes_only")
+                 if s in results]
+    kpis = [                       # (label, key, orientation)
+        ("Bus boardings", "boardings", +1),
+        ("Operator revenue", "revenue", +1),
+        ("Rider convenience", "convenience", +1),
+        ("Car trips avoided", "car_trips", -1),   # fewer cars = positive
+    ]
+    deltas = {
+        s: [sign * (final_year(results[s])[key] / base[key] - 1) * 100
+            for _, key, sign in kpis]
+        for s in scenarios
+    }
+
+    fig, ax = plt.subplots(figsize=(10.5, 5.0), dpi=150)
+    fig.patch.set_facecolor(PAGE)
+    fig.subplots_adjust(left=0.16, right=0.96, top=0.80, bottom=0.10)
+    fig.suptitle("Is the policy a net win? Final-year change vs status quo",
+                 fontsize=13, color=INK, x=0.16, ha="left", fontweight="bold")
+    fig.text(0.16, 0.885, "Every KPI oriented so right of zero = improvement. "
+             "Preliminary simulation results, not a forecast.",
+             fontsize=9, color=INK2)
+
+    n_s = len(scenarios)
+    bar_h = 0.72 / n_s
+    for j, s in enumerate(scenarios):
+        y = [i + (j - (n_s - 1) / 2) * bar_h for i in range(len(kpis))]
+        bars = ax.barh(y, deltas[s], height=bar_h * 0.9,
+                       color=SCENARIO_COLORS[s], label=SCENARIO_LABELS[s])
+        for rect, v in zip(bars, deltas[s]):
+            ax.annotate(f"{v:+.0f}%",
+                        (v, rect.get_y() + rect.get_height() / 2),
+                        xytext=(5 if v >= 0 else -5, 0),
+                        textcoords="offset points", va="center",
+                        ha="left" if v >= 0 else "right",
+                        fontsize=8, color=INK2)
+    ax.axvline(0, color=BASELINE, linewidth=1.2)
+    ax.set_yticks(range(len(kpis)))
+    ax.set_yticklabels([k[0] for k in kpis], fontsize=9.5, color=INK)
+    ax.invert_yaxis()
+    ax.set_facecolor(SURFACE)
+    ax.tick_params(colors=MUTED, labelsize=8, length=0)
+    ax.set_axisbelow(True)
+    ax.grid(True, axis="x", color=GRID, linewidth=0.8)
+    for side in ("top", "right", "left"):
+        ax.spines[side].set_visible(False)
+    ax.spines["bottom"].set_color(BASELINE)
+    ax.set_xlabel("% change vs status quo (final simulated year)",
+                  fontsize=8.5, color=INK2)
+    ax.margins(x=0.14)
+    ax.legend(frameon=False, fontsize=8.5, labelcolor=INK2,
+              loc="lower right")
+
+    Path(out_png).parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_png, facecolor=PAGE)
+    plt.close(fig)
+    return out_png
+
+
 def make_benchmark_chart(rows: List[dict],
                          out_png: str = "outputs/benchmark.png") -> str:
     df = pd.DataFrame(rows)

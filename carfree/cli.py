@@ -94,7 +94,8 @@ def main(argv=None) -> int:
         from pathlib import Path
 
         from .calibration import calibrated_params
-        from .dashboard import (make_dashboard, run_suite, sweep_bulk_discount)
+        from .dashboard import (make_dashboard, make_impact_chart, run_suite,
+                                sweep_bulk_discount)
         params = calibrated_params()
         print("running scenario suite...")
         results = run_suite(params, args.agents, args.years, args.seed)
@@ -109,7 +110,10 @@ def main(argv=None) -> int:
             validation = json.loads(report.read_text())
         png = make_dashboard(results, sweep, out_png=args.out,
                              validation=validation)
+        impact = make_impact_chart(
+            results, str(Path(args.out).with_name("impact.png")))
         print(f"dashboard written to {png} (+ .html report)")
+        print(f"impact summary written to {impact}")
         return 0
 
     if args.command == "sweep":
