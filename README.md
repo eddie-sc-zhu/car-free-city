@@ -48,26 +48,27 @@ enrollment propensity, and an evolving **riding habit**.
 
 Each day, agent $i$ makes a trip with probability
 
-$$P^{travel}_t = \min\!\big(p_0\,\sigma_{m(t)}\,\delta_{d(t)},\ 0.98\big)$$
+$$P^{travel}_t = \min\big(p_0 \sigma_{m(t)} \delta_{d(t)},\ 0.98\big)$$
 
 where $\sigma_m$ are calibrated month-of-year factors and $\delta_d$ day-of-week
 factors. Travelers then pick bus / car / other via a **multinomial logit** over
-generalized round-trip cost (dollars; times in minutes, $v_i$ = value of time in
-\$/min, $\theta$ = cost sensitivity):
+generalized round-trip cost — costs in dollars, times in minutes, where $v_i$ is
+the agent's value of time in dollars per minute and $\theta$ the cost
+sensitivity:
 
-$$U^{bus}_{i,t} = \beta_{bus} + \eta\,h_{i,t} - \theta\Big(F_{i} + v_i \cdot 2\big(w_i + \tfrac{30}{f_t} + T^{bus}_i\gamma_t\big)\Big)$$
+$$U^{bus}_{i,t} = \beta_{bus} + \eta h_{i,t} - \theta\Big(F_{i} + v_i \cdot 2\big(w_i + \tfrac{30}{f_t} + T^{bus}_i\gamma_t\big)\Big)$$
 
-$$U^{car}_{i} = -\theta\Big(P_i + (c + v_i)\,2\,T^{car}_i\Big) \quad\big(= -\infty \text{ if carless, or downtown worker under the ban}\big)$$
+$$U^{car}_{i} = -\theta\Big(P_i + (c + v_i)\cdot 2 T^{car}_i\Big) \quad\big(= -\infty \text{ if carless, or downtown worker under the ban}\big)$$
 
-$$U^{other}_{i} = \beta_{other} - \theta\, v_i\, 2\,T^{other}_i \qquad\qquad P(m) = \frac{e^{U_m}}{\sum_k e^{U_k}}$$
+$$U^{other}_{i} = \beta_{other} - \theta v_i \cdot 2 T^{other}_i \qquad\qquad P(m) = \frac{e^{U_m}}{\sum_k e^{U_k}}$$
 
-Here $F_i$ is the day fare (\$4.40, or 0 with an employer pass), $w_i$ access
+Here $F_i$ is the day fare (4.40 dollars, or 0 with an employer pass), $w_i$ access
 walk, $30/f_t$ the expected wait at frequency $f_t$ buses/hr (half the headway),
 $\gamma_t$ the crowding multiplier, $P_i$ parking, and $c$ per-minute car
 operating cost. One uniform draw per agent selects the mode by inverse CDF.
 Riding builds **habit** with a ~20-day memory,
 
-$$h_{i,t+1} = h_{i,t} + \lambda\,(\mathbb{1}[\text{rode}_{i,t}] - h_{i,t}),\qquad \lambda = 0.05,$$
+$$h_{i,t+1} = h_{i,t} + \lambda(\mathbb{1}[\text{rode}_{i,t}] - h_{i,t}),\qquad \lambda = 0.05,$$
 
 which feeds back into tomorrow's $U^{bus}$ — the micro-level path dependence
 that makes policy shocks persistent.
@@ -81,44 +82,72 @@ that makes policy shocks persistent.
 | **B1** balancing | ridership → crowding → longer in-vehicle time, lower convenience → ridership |
 | **B2** balancing | employer passes → discounted bulk revenue → lower farebox recovery → service pressure |
 
+**R1 — the farebox flywheel** (reinforcing)
+
+```mermaid
+flowchart LR
+  R([Ridership]) -->|"+"| REV([Fare revenue]) -->|"+"| F([Service frequency]) -->|"shorter waits"| C([Convenience]) -->|"+"| R
+```
+
+**R2 — awareness & word-of-mouth** (reinforcing)
+
+```mermaid
+flowchart LR
+  C([Convenience]) -->|"+"| A([Awareness]) -->|"+"| P([Employer pass adoption]) -->|"+"| R([Ridership]) -->|"rider share +"| A
+```
+
+**B1 — crowding** (balancing)
+
+```mermaid
+flowchart LR
+  R([Ridership]) -->|"+"| L([Crowding / load factor]) -->|"slower, less comfortable −"| C([Convenience]) -->|"+"| R
+```
+
+**B2 — pass-revenue dilution** (balancing)
+
+```mermaid
+flowchart LR
+  P([Pass enrollment]) -->|"discounted bulk rate −"| Y([Revenue per boarding]) -->|"−"| FR([Farebox recovery]) -->|"service pressure"| F([Service frequency])
+```
+
 The aggregate side closes the loops. With daily boardings
 $B_t = 2(1+\tau)\cdot\text{riders}_t$ (round trip plus transfer rate $\tau$):
 
 $$\ell_t = \frac{B_t}{\kappa f_t} \qquad \gamma_t = 1 + 0.25\max(0,\ \ell_{t-1}-1) \qquad \text{(load factor; crowding, loop B1)}$$
 
-$$C_t = 0.45\,e^{-\text{wait}_t/12} + 0.35\big(1 - \text{clip}\tfrac{\ell_t-0.8}{0.7}\big) + 0.20\min\!\big(\tfrac{f_t}{10},1\big) \qquad \text{(convenience index)}$$
+$$C_t = 0.45 e^{-\text{wait}_t/12} + 0.35\big(1 - \text{clip}\big(\tfrac{\ell_t-0.8}{0.7}\big)\big) + 0.20\min\big(\tfrac{f_t}{10},1\big) \qquad \text{(convenience index)}$$
 
-$$A_{t+1} = A_t + \mu\Big(0.5\,C_t + 0.5\min\!\big(1,\tfrac{s_t}{s^*}\big) - A_t\Big) \qquad \text{(awareness stock, loop R2)}$$
+$$A_{t+1} = A_t + \mu\Big(0.5 C_t + 0.5\min\big(1,\tfrac{s_t}{s^{\ast}}\big) - A_t\Big) \qquad \text{(awareness stock, loop R2)}$$
 
 where $s_t$ is the day's rider share. Monthly, the operator moves system
 frequency from the farebox-recovery gap and the load gap (loops R1/B2):
 
-$$f \leftarrow \text{clip}\big(f(1+g),\,f_{\min},\,f_{\max}\big),\qquad g = \text{clip}\Big(k_r\tfrac{R-R^*}{R^*} + k_\ell(\bar\ell - L^*),\ \pm 5\%\Big)$$
+$$f \leftarrow \text{clip}\big(f(1+g),\ f_{\min},\ f_{\max}\big),\qquad g = \text{clip}\Big(k_r\tfrac{R-R^{\ast}}{R^{\ast}} + k_\ell(\bar\ell - L^{\ast}),\ \pm 5\%\Big)$$
 
 with recovery $R$ = monthly revenue / ($f\times$ unit operating cost). The
 capacity coefficient $\kappa$ and unit cost are **anchored at the end of a
-90-day burn-in** so that the baseline sits exactly at $L^*=0.75$ and
-$R^*=0.25$ — the service loop is neutral until a policy actually shocks the
+90-day burn-in** so that the baseline sits exactly at $L^{\ast}=0.75$ and
+$R^{\ast}=0.25$ — the service loop is neutral until a policy actually shocks the
 system, so scenario differences are caused, not drifted.
 
 ### Employer transit passes (stochastic mechanism)
 
 Each month, every employer that doesn't yet offer passes adopts with hazard
 
-$$P(\text{adopt}) = h_0\,(1 + g_a A)\,(1 + g_p\,\text{offer share})\,(0.4 + 1.7\,\delta) \quad \text{capped at } 0.10/\text{mo}$$
+$$P(\text{adopt}) = h_0 (1 + g_a A)(1 + g_p \cdot \text{offer share})(0.4 + 1.7\delta) \quad \text{capped at } 0.10/\text{mo}$$
 
 the compounding of word-of-mouth ($A$), peer imitation, and program price
 (bulk discount $\delta$) is what produces the S-curve adoption visible in the
 dashboard. An employee of an offering firm enrolls (monotonically, once) when
 their static propensity draw $u_i \sim U(0,1)$ clears a habit-scaled cutoff:
 
-$$u_i < e_0\,(0.5 + 0.5A)\,(0.25 + 0.75\,h_{i,t})$$
+$$u_i < e_0 (0.5 + 0.5A)(0.25 + 0.75 h_{i,t})$$
 
 so enrollees skew toward existing riders — people sign up for a benefit they
 expect to use. Pass holders ride fare-free while the employer pays the operator
-$\$74\,(1-\delta)$ per enrollee-month, so operator revenue is
+$74(1-\delta)$ dollars per enrollee-month, so operator revenue (in dollars) is
 
-$$\text{Rev}_{month} = \underbrace{\textstyle\sum_t \text{paying riders}_t \times \$4.40}_{\text{farebox}} + \underbrace{N^{pass} \times \$74\,(1-\delta)}_{\text{bulk pass sales}}$$
+$$\text{Rev}_{month} = \underbrace{\textstyle\sum_t \text{paying riders}_t \times 4.40}_{\text{farebox}} + \underbrace{N^{pass} \times 74(1-\delta)}_{\text{bulk pass sales}}$$
 
 The program therefore mostly *replaces* farebox revenue with discounted bulk
 revenue — the dilution loop B2 propagates — while the 0.25 enrollment floor
