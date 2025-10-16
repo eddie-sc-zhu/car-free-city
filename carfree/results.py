@@ -82,3 +82,4 @@ class SimulationResult:
 
     def to_csv(self, path: str) -> None:
         self.daily.to_csv(path, index_label="date")
+# results
