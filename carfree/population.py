@@ -55,6 +55,7 @@ def build_population(params: ModelParams, n: int, rng: np.random.Generator) -> P
     other_time = bus_ivt * rng.uniform(*params.other_time_ratio, n)
     pass_propensity = rng.random(n)
 
+# pop
     return Population(
         n=n,
         employer_id=employer_id,
