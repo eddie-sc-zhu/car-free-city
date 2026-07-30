@@ -1,4 +1,4 @@
-# Baltimore Car-Free City — Agent-Based Bus Ridership Model
+# Baltimore Car-Free City: Agent-Based Bus Ridership Model
 
 An agent-based complex-systems model, written in Python, that simulates Baltimore
 bus ridership under a hypothetical **car-free downtown policy**. Tens of thousands
@@ -11,7 +11,7 @@ stakeholders.
 
 ![Scenario dashboard](docs/img/dashboard.png)
 
-## Headline results (20,000 agents, 5-year horizon, seed 7)
+## Test results (20,000 agents, 5-year horizon, seed 7)
 
 | Scenario | Annual boardings (final yr) | Annual operator revenue | vs status quo |
 |---|---:|---:|---:|
@@ -32,10 +32,9 @@ bottom-right panel) exposes the operator's tradeoff:
 | 80% | +3.8% | −18.4% | 24% |
 
 Deeper discounts recruit more employers (and more riders) but dilute revenue per
-boarding; past ~50% the revenue loss feeds back through the service loop — the
+boarding; past ~50% the revenue loss feeds back through the service loop. The
 operator cuts frequency, convenience falls, and the ridership lift itself starts
-to shrink. That non-monotonicity is the complex-systems payoff of modeling the
-loops instead of a spreadsheet elasticity.
+to shrink. 
 
 ## How the model works
 
@@ -58,7 +57,7 @@ U_other = ASC_other − θ·(VoT·walk_bike_time)
 Riding builds habit; habit raises tomorrow's bus utility — the micro-level
 path dependence that makes policy shocks persistent.
 
-### Causal loops (the "complex systems" part)
+### Causal loops (Broader systems dynamics)
 
 | Loop | Path |
 |---|---|
@@ -81,8 +80,8 @@ enroll with probability increasing in their riding habit (people sign up for a
 benefit they expect to use), enrollment is monotonic, pass holders ride fare-free,
 and the employer pays the operator a bulk rate of `monthly_pass_price × (1 −
 bulk_discount)` per enrollee. Because enrollees skew toward existing riders, the
-program mostly *replaces* farebox revenue with discounted bulk revenue — the
-dilution that loop B2 propagates — while the enrollment floor still converts some
+program mostly *replaces* farebox revenue with discounted bulk revenue. The
+dilution that loop B2 propagates, while the enrollment floor still converts some
 occasional riders into new ridership.
 
 ### Policy lever
@@ -97,11 +96,11 @@ demand shock propagates through R1/B1.
 Jan 2019 – Dec 2024. `python -m carfree calibrate` fits, on the pre-COVID 2019
 window:
 
-1. **seasonal factors** — month-of-year demand multipliers extracted from the
+1. **seasonal factors**: month-of-year demand multipliers extracted from the
    observed series (daily-mean normalized);
-2. **`asc_bus`** — bisection until simulated bus mode share hits the ~20% target
+2. **`asc_bus`**: bisection until simulated bus mode share hits the ~20% target
    consistent with Baltimore transit commute shares;
-3. **`persons_per_agent`** — closed-form level scale (fitted: 1 agent ≈ 32.2
+3. **`persons_per_agent`**: closed-form level scale (fitted: 1 agent ≈ 32.2
    travelers).
 
 The calibrated baseline reproduces observed 2019 monthly boardings with
@@ -123,12 +122,7 @@ quiet on the fit.
 
 ## Performance: profiled, vectorized, memory-lean
 
-The repo keeps **two engines that consume identical random streams** (same seed →
-statistically identical trajectories, verified bitwise-equal in testing):
-
-* `engine_naive.py` — the straightforward "v1" ABM: an interpreted per-agent loop
-  plus mesa-DataCollector-style per-day copies of agent state;
-* `engine.py` — the production path: the per-agent update runs as ~20 NumPy array
+* `engine.py` the production path: the per-agent update runs as ~20 NumPy array
   operations over the whole population, and only per-day aggregates are recorded
   (no redundant state copies).
 
@@ -196,7 +190,7 @@ docs/img/           dashboard, calibration, benchmark figures used above
   (`datasets/ridership_data.csv`; `new_ridership_data.csv` is the core
   local-bus subset) — see the MTA's [performance & ridership reporting](https://www.mta.maryland.gov/performance-improvement).
 * **Fares**: $2.00 one-way / $4.40 day pass (the model's effective per-rider-day
-  fare) / ~$74 monthly pass — [MDOT MTA fare tariff](https://www.mta.maryland.gov/fare-tariff-policy),
+  fare) / ~$74 monthly pass -- [MDOT MTA fare tariff](https://www.mta.maryland.gov/fare-tariff-policy),
   [fare history](https://www.cbsnews.com/baltimore/news/mta-fare-raise-june).
 * **Car access**: ~30% of Baltimore City households have no vehicle available —
   [ACS via BNIA / Open Baltimore](https://data.baltimorecity.gov/datasets/bniajfi::percent-of-households-with-no-vehicle-available-city/about);
@@ -206,12 +200,12 @@ docs/img/           dashboard, calibration, benchmark figures used above
 
 ## Limitations & extensions
 
-* One aggregate "system-average" bus network — no route-level assignment or GTFS
+* One aggregate "system-average" bus network -- no route-level assignment or GTFS
   geometry; frequency is a single scalar the operator adjusts monthly.
 * The car ban is binary (downtown workers lose the car option); park-and-ride at
   the zone edge, carpooling, and ride-hail substitution are folded into "other".
 * Employer adoption parameters (hazard, peer gain) are plausible-by-construction,
-  not econometrically estimated — the sweep is the honest way to read them.
+  not econometrically estimated -- the sweep is the honest way to read them.
 * Calibration targets pre-COVID 2019; validating against 2020–2022 requires an
   exogenous demand shock the model deliberately does not include. The divergence
   monitor is the tool for deciding when recalibration is due.
