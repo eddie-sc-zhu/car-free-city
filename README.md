@@ -274,19 +274,6 @@ docs/img/           dashboard, calibration, benchmark figures used above
   person-level car access is set higher (62%) since commuters skew toward access.
 * **Behavioral anchors**: ~$15/hr mean value of time, ~20% baseline transit share
   of daily travelers, 25% farebox recovery target, 0.75 target load factor.
-
-## Limitations & extensions
-
-* One aggregate "system-average" bus network -- no route-level assignment or GTFS
-  geometry; frequency is a single scalar the operator adjusts monthly.
-* The car ban is binary (downtown workers lose the car option); park-and-ride at
-  the zone edge, carpooling, and ride-hail substitution are folded into "other".
-* Employer adoption parameters (hazard, peer gain) are plausible-by-construction,
-  not econometrically estimated -- the sweep is the honest way to read them.
-* Calibration targets pre-COVID 2019; validating against 2020–2022 requires an
-  exogenous demand shock the model deliberately does not include. The divergence
-  monitor is the tool for deciding when recalibration is due.
-* Natural extensions: multi-route network with transfer assignment, car-ownership
   divestment dynamics under the ban, income-stratified fare policy, Metro/Light
   Rail interaction.
 
