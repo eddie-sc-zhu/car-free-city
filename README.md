@@ -1,13 +1,7 @@
 # Baltimore Car-Free City: Agent-Based Bus Ridership Model
 
 An agent-based complex-systems model, written in Python, that simulates Baltimore
-bus ridership under a hypothetical **car-free downtown policy**. Tens of thousands
-of synthetic commuters make daily mode choices inside a feedback system connecting
-**ridership, fare revenue, service frequency, and rider convenience**, with
-**employer transit-pass adoption** modeled as a stochastic behavioral process. The
-model is calibrated against observed **Maryland MTA monthly ridership**, ships with
-an automated divergence monitor, and renders a scenario-tradeoffs dashboard for
-stakeholders.
+bus ridership under a hypothetical car-free downtown policy for a Johns Hopkins Research Initiative Proposal.
 
 ![Scenario dashboard](docs/img/dashboard.png)
 
