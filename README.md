@@ -97,60 +97,38 @@ flowchart LR
   P([Pass enrollment]) -->|"discounted bulk rate −"| Y([Revenue per boarding]) -->|"−"| FR([Farebox recovery]) -->|"service pressure"| F([Service frequency])
 ```
 
-### Policy lever
-
-`car_free` scenarios ban car commuting for agents working in the downtown zone
-from a configurable start day; affected agents re-solve their mode choice, and the
-demand shock propagates through R1/B1.
-
 ## Calibration against Maryland MTA data
 
 `datasets/ridership_data.csv` holds observed MDOT MTA monthly bus boardings,
-Jan 2019 – Dec 2024. `python -m carfree calibrate` fits, on the pre-COVID 2019
-window:
+Jan 2019 – Dec 2024. We then fit `python -m carfree calibrate` to the pre-COVID 2019 data. We choose 3 metrics:
 
-1. **seasonal factors**: month-of-year demand multipliers extracted from the
-   observed series (daily-mean normalized);
-2. **`asc_bus`**: bisection until simulated bus mode share hits the ~20% target
-   consistent with Baltimore transit commute shares;
-3. **`persons_per_agent`**: closed-form level scale (fitted: 1 agent ≈ 32.2
-   travelers).
+1. seasonal factors: month-of-year demand multipliers extracted from the
+   observed series (daily-mean normalized)
+2. `asc_bus`: bisection until simulated bus mode share hits the ~20% target
+   consistent with Baltimore transit commute shares
+3. `persons_per_agent`: closed-form level scale (fitted: 1 agent ≈ 32.2
+   travelers)
 
 The calibrated baseline reproduces observed 2019 monthly boardings with
 **MAPE 1.33%** (worst month −3.9%):
 
 ![Calibration fit](docs/img/calibration_fit.png)
 
-### Automated divergence flagging
+## Performance: profiling, vectorizing, and making it memory-lean
 
-`python -m carfree validate` re-runs the calibrated baseline and compares monthly
-totals against the observed series with three checks — per-month deviation
-(>10% flags), window MAPE (>8% fails), and a **rolling 3-month signed drift**
-detector (>6% flags systematic bias that per-month checks miss). It prints a
-month-by-month table, writes `outputs/validation_report.json`, and returns a
-CI-friendly exit code (`--strict` escalates warnings), so it works both as a
-regression gate for model changes and as a drift monitor when new observed months
-are appended. The test suite proves the flagger fires on shifted data and stays
-quiet on the fit.
-
-## Performance: profiled, vectorized, memory-lean
-
-* `engine.py` the production path: the per-agent update runs as ~20 NumPy array
+* `engine.py` the production path runs as ~20 NumPy array
   operations over the whole population, and only per-day aggregates are recorded
   (no redundant state copies).
 
-Hot paths were identified with `cProfile` and `line_profiler`
-(`python tools/profile_hotpaths.py`): >84% of naive runtime sits in the
+Hot paths were identified with `cProfile`: >84% of naive runtime sits in the
 per-agent `step_agents` loop, which is exactly what got vectorized.
 
 ![Benchmark](docs/img/benchmark.png)
 
 Measured on this machine (`python -m carfree benchmark`), the vectorized engine is
-**14–23× faster and uses ~45–50× less peak memory**, with the gap widening as the
+14–23× faster and uses ~45–50× less peak memory, with the gap widening as the
 population grows (the original optimization target of ~4× came from vectorizing
-the mode-choice inner loop alone; eliminating the per-day state copies compounds
-it). That headroom is what makes **multi-year, city-scale runs practical: 150,000
-agents × 5 years completes in ~19 s** (`--city-scale`).
+the mode-choice inner loop alone).
 
 ## Quickstart
 
@@ -170,9 +148,6 @@ python -m carfree benchmark --city-scale --plot outputs/benchmark.png
 python tools/profile_hotpaths.py       # cProfile + line_profiler hot paths
 python -m pytest tests -q              # 19 tests
 ```
-
-Every run is deterministic given `--seed`; scenarios share random streams
-(common random numbers), so scenario deltas are low-variance.
 
 ## Repository layout
 
