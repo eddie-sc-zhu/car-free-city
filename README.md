@@ -97,60 +97,11 @@ flowchart LR
   P([Pass enrollment]) -->|"discounted bulk rate −"| Y([Revenue per boarding]) -->|"−"| FR([Farebox recovery]) -->|"service pressure"| F([Service frequency])
 ```
 
-The aggregate side closes the loops. Daily boardings are
-$B_t = 2(1+\tau)\cdot\text{riders}_t$ (round trip plus transfers); the load
-factor $\ell_t = B_t/(\kappa f_t)$ inflates in-vehicle time once buses run past
-capacity (loop B1); a 0–1 **convenience index** blends wait, crowding, and
-coverage; and an **awareness stock** relaxes daily toward a mix of convenience
-and rider share (loop R2). Monthly, the operator moves system frequency from
-the farebox-recovery gap and the load gap (loops R1/B2):
-
-$$f \leftarrow \text{clip}\big(f(1+g),\ f_{\min},\ f_{\max}\big),\qquad g = \text{clip}\Big(k_r\tfrac{R-R^{\ast}}{R^{\ast}} + k_\ell(\bar\ell - L^{\ast}),\ \pm 5\%\Big)$$
-
-with recovery $R$ = monthly revenue / ($f\times$ unit operating cost). The
-capacity coefficient $\kappa$ and unit cost are **anchored at the end of a
-90-day burn-in** so that the baseline sits exactly at $L^{\ast}=0.75$ and
-$R^{\ast}=0.25$ — the service loop is neutral until a policy actually shocks the
-system, so scenario differences are caused, not drifted.
-
-### Employer transit passes (stochastic mechanism)
-
-Each month, every employer that doesn't yet offer passes adopts with hazard
-
-$$P(\text{adopt}) = h_0 (1 + g_a A)(1 + g_p \cdot \text{offer share})(0.4 + 1.7\delta) \quad \text{capped at } 0.10/\text{mo}$$
-
-— the compounding of word-of-mouth ($A$), peer imitation, and program price
-(bulk discount $\delta$) is what produces the S-curve adoption visible in the
-dashboard. Employees of offering firms enroll monotonically, with probability
-scaled by awareness and their own riding habit ($0.25 + 0.75 h_i$), so
-enrollees skew toward existing riders — people sign up for a benefit they
-expect to use. Pass holders ride fare-free while their employer pays the
-operator $74(1-\delta)$ dollars per enrollee-month, alongside farebox revenue
-of 4.40 dollars per paying rider-day. The program therefore mostly *replaces*
-farebox revenue with discounted bulk revenue — the dilution loop B2 propagates
-— while the enrollment floor still converts some occasional riders into new
-ridership.
-
 ### Policy lever
 
 `car_free` scenarios ban car commuting for agents working in the downtown zone
 from a configurable start day; affected agents re-solve their mode choice, and the
 demand shock propagates through R1/B1.
-
-### Design notes
-
-* **Struct-of-arrays agents.** The population is one NumPy array per attribute,
-  not agent objects — the layout that lets the daily update run as whole-array
-  operations.
-* **Two engines, one random stream.** A naive per-agent reference engine and the
-  vectorized engine draw randomness in an identical fixed order (population →
-  two n-sized uniforms/day → one E-sized uniform/month-end), so same seed ⇒
-  statistically identical trajectories; the tests verify it.
-* **Common random numbers across scenarios.** Adoption uniforms are drawn even
-  when the program is off, so scenarios share streams and their *differences*
-  are low-variance.
-* **Utilities price wait and crowding directly**; the convenience index $C_t$ is
-  reporting + awareness only — no double counting.
 
 ## Calibration against Maryland MTA data
 
