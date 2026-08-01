@@ -46,19 +46,16 @@ enrollment propensity, and an evolving **riding habit**.
 
 Each day, agent $i$ makes a trip with base probability $p_0$ scaled by
 calibrated month-of-year and day-of-week factors. Travelers then pick
-bus / car / other via a **multinomial logit** over generalized round-trip cost
-(dollars; times in minutes). The bus utility is
+bus / car / other via a multinomial logit over generalized round-trip cost
+(dollars and times in minutes). The bus utility is
 
 $$U^{bus}_{i,t} = \beta_{bus} + \eta h_{i,t} - \theta\Big(F_{i} + v_i \cdot 2\big(w_i + \tfrac{30}{f_t} + T^{bus}_i\gamma_t\big)\Big)$$
 
-where $F_i$ is the day fare (4.40 dollars; 0 with an employer pass), $v_i$ the
+where $F_i$ is the day fare (4.40 dollars, 0 with an employer pass), $v_i$ the
 agent's value of time, $w_i$ access walk, $30/f_t$ the expected wait at
-frequency $f_t$ buses/hr (half the headway), $T^{bus}_i$ in-vehicle time,
+frequency $f_t$ buses/hr, $T^{bus}_i$ in-vehicle time,
 $\gamma_t$ the crowding multiplier, and $\theta$ the cost sensitivity. Car and
-walk/bike are priced the same way. The mode is drawn from the
-softmax $P(m) = e^{U_m}/\sum_k e^{U_k}$ with one uniform per agent. Riding
-builds **habit** with a ~20-day memory, $h \leftarrow h + \lambda(\text{rode} -
-h)$ with $\lambda = 0.05$, which feeds back into tomorrow's $U^{bus}$. 
+walk/bike are priced the same way. 
 
 ### Causal loops (Broader systems dynamics)
 
