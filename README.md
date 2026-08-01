@@ -40,12 +40,6 @@ to shrink.
 
 ![Net impact summary](docs/img/impact.png)
 
-For the transit system, **yes — every KPI improves in every scenario**, and the
-combined package dominates: the ban does the heavy lifting, passes convert the
-forced switch into retained habit. Caveats: passes alone move little; costs to
-displaced drivers and benefits beyond the system (congestion, emissions) are not
-monetized; and past a ~50% bulk discount the program turns revenue-negative.
-
 ## How the model works
 
 ### Agents
