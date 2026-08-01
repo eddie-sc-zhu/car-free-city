@@ -55,13 +55,10 @@ where $F_i$ is the day fare (4.40 dollars; 0 with an employer pass), $v_i$ the
 agent's value of time, $w_i$ access walk, $30/f_t$ the expected wait at
 frequency $f_t$ buses/hr (half the headway), $T^{bus}_i$ in-vehicle time,
 $\gamma_t$ the crowding multiplier, and $\theta$ the cost sensitivity. Car and
-walk/bike are priced the same way — parking plus per-minute operating cost plus
-time for car, time only for walk/bike — with $U^{car} = -\infty$ for carless
-agents and for downtown workers under the ban. The mode is drawn from the
+walk/bike are priced the same way. The mode is drawn from the
 softmax $P(m) = e^{U_m}/\sum_k e^{U_k}$ with one uniform per agent. Riding
 builds **habit** with a ~20-day memory, $h \leftarrow h + \lambda(\text{rode} -
-h)$ with $\lambda = 0.05$, which feeds back into tomorrow's $U^{bus}$ — the
-micro-level path dependence that makes policy shocks persistent.
+h)$ with $\lambda = 0.05$, which feeds back into tomorrow's $U^{bus}$. 
 
 ### Causal loops (Broader systems dynamics)
 
