@@ -26,9 +26,8 @@ bottom-right panel) exposes the operator's tradeoff:
 | 80% | +3.8% | −18.4% | 24% |
 
 Deeper discounts recruit more employers (and more riders) but dilute revenue per
-boarding; past ~50% the revenue loss feeds back through the service loop. The
-operator cuts frequency, convenience falls, and the ridership lift itself starts
-to shrink. 
+boarding. And at past ~50% the revenue loss feeds back through the service loop. The
+operator has to cut frequency, and convenience falls, leading the ridership to shrink. 
 
 ### So is it a net win? (preliminary)
 
@@ -38,13 +37,7 @@ to shrink.
 
 ### Agents
 
-Each agent represents approximately **32 real travelers** after calibration and is initialized with employer attachment, car access, workplace location, value of time, travel times, pass propensity, and an evolving bus-riding habit.
-
-Each day, agent \(i\) travels with probability:
-
-```math
-p_t = \min\left(p_0 s_{m(t)} d_{w(t)},\ 0.98\right)
-```
+Each agent represents approximately 32 real travelers after calibration and is initialized with employer attachment, car access, workplace location, value of time, travel times, pass propensity, and an evolving bus-riding habit.
 
 Travelers choose between **bus**, **car**, and **other** using a multinomial-logit model.
 
