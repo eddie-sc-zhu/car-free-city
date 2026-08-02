@@ -38,78 +38,98 @@ to shrink.
 
 ### Agents
 
-Each agent represents approximately **32 real travelers** after calibration and is initialized with employer attachment, car access, workplace location, value of time, travel times, pass propensity, and an evolving bus habit.
+Each agent represents approximately **32 real travelers** after calibration and is initialized with employer attachment, car access, workplace location, value of time, travel times, pass propensity, and an evolving bus-riding habit.
 
-Each day, agent (i) travels with probability
+Each day, agent \(i\) travels with probability:
 
-[
-p_t=\min\left(p_0s_{m(t)}d_{w(t)},,0.98\right),
-]
-
-where (p_0) is the base trip probability, (s_{m(t)}) is the calibrated monthly factor, and (d_{w(t)}) is the day-of-week factor.
-
-Travelers choose bus, car, or other using multinomial-logit utilities.
-
-[
-U^{bus}_{i,t}
-=============
-
-\beta_{bus}+\eta h_{i,t}
--\theta\left[
-F_{i,t}
-+2v_i\left(
-w_i+\frac{30}{f_t}+T^{bus}_i\gamma_t
-\right)
-\right]
-]
-
-[
-U^{car}_{i,t}
-=============
-
--\theta\left[
-P_i+2T^{car}*i(c*{op}+v_i)
-\right]
-]
-
-[
-U^{other}_{i}
-=============
-
-\beta_{other}
--\theta\left[
-2v_iT^{other}_i
-\right]
-]
+$$
+p_t = \min\left(p_0 s_{m(t)} d_{w(t)}, 0.98\right)
+$$
 
 where:
 
-* (\beta_{bus},\beta_{other}): baseline mode preferences
-* (h_{i,t}): bus-riding habit
-* (\eta): habit weight
-* (\theta): sensitivity to generalized cost
-* (F_{i,t}): bus fare, $4.40 or $0 with a pass
-* (v_i): value of time in dollars per minute
-* (w_i): bus access time
-* (f_t): buses per hour, so (30/f_t) is expected wait
-* (T^{bus}_i,T^{car}_i,T^{other}_i): one-way travel times
-* (\gamma_t): crowding multiplier
-* (P_i): parking cost
-* (c_{op}): car operating cost per minute
+- \(p_0\): base travel probability
+- \(s_{m(t)}\): calibrated month-of-year factor
+- \(d_{w(t)}\): day-of-week factor
 
-Mode probabilities are
+Travelers choose between **bus**, **car**, and **other** using a multinomial-logit model.
 
-[
+### Bus Utility
+
+$$
+U^{\mathrm{bus}}_{i,t}
+=
+\beta_{\mathrm{bus}}
++
+\eta h_{i,t}
+-
+\theta
+\left[
+F_{i,t}
++
+2v_i
+\left(
+w_i + \frac{30}{f_t} + T^{\mathrm{bus}}_i \gamma_t
+\right)
+\right]
+$$
+
+### Car Utility
+
+$$
+U^{\mathrm{car}}_{i,t}
+=
+-\theta
+\left[
+P_i
++
+2T^{\mathrm{car}}_i
+\left(
+c_{\mathrm{op}} + v_i
+\right)
+\right]
+$$
+
+### Other-Mode Utility
+
+$$
+U^{\mathrm{other}}_i
+=
+\beta_{\mathrm{other}}
+-
+\theta
+\left[
+2v_iT^{\mathrm{other}}_i
+\right]
+$$
+
+Variables:
+
+- \(\beta_{\mathrm{bus}}\), \(\beta_{\mathrm{other}}\): baseline mode preferences
+- \(h_{i,t}\): current bus-riding habit
+- \(\eta\): habit weight
+- \(\theta\): sensitivity to generalized cost
+- \(F_{i,t}\): bus fare, **$4.40** or **$0** with an employer pass
+- \(v_i\): value of time in dollars per minute
+- \(w_i\): one-way bus access time
+- \(f_t\): service frequency in buses per hour
+- \(30/f_t\): expected one-way waiting time
+- \(T^{\mathrm{bus}}_i\), \(T^{\mathrm{car}}_i\), \(T^{\mathrm{other}}_i\): one-way travel times
+- \(\gamma_t\): crowding and delay multiplier
+- \(P_i\): daily parking cost
+- \(c_{\mathrm{op}}\): vehicle operating cost per minute
+
+The mode probabilities are:
+
+$$
 P_{i,t}(m)
-==========
+=
+\frac{\exp\left(U^m_{i,t}\right)}
+{\sum_{k \in \{\mathrm{bus},\mathrm{car},\mathrm{other}\}}
+\exp\left(U^k_{i,t}\right)}
+$$
 
-\frac{e^{U^m_{i,t}}}
-{\sum_k e^{U^k_{i,t}}},
-\qquad
-m\in{\text{bus, car, other}}.
-]
-
-Car utility is set to (-\infty) when an agent lacks car access or when the downtown car-free policy applies.
+Car utility is set to \(-\infty\) when an agent lacks car access or when the downtown car-free policy prevents that agent from driving.
 
 
 ### Causal loops (Broader systems dynamics)
